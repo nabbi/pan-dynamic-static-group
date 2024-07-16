@@ -29,32 +29,54 @@ proc myexec {args} {
     }
     return $results
 }
-
 # use an ip calculator to normalize the input
-# this will return formating cisco asa acl inputs
 proc netmask {cidr} {
+
     set sipcalc [myexec sipcalc $cidr]
 
     foreach line [split $sipcalc "\n"] {
+
         switch -glob -- $line {
             "Network address*" {
-                #ipv4
+                # ipv4
                 set ipv4 [lindex $line 3]
                 continue
             }
             "Network mask (bits)*" {
-                #ipv4
+                # ipv4
                 set ipv4mask [lindex $line 4]
-                break
             }
+            "Compressed address*" {
+                # ipv6
+                set ipv6 [lindex $line 3]
+            }
+            "Prefix length*" {
+                # ipv6
+                set ipv6prefix [lindex $line 3]
+            }
+
             default {}
         }
     }
 
     if { [info exists ipv4] && [info exists ipv4mask] } {
-        return "$ipv4/$ipv4mask"
+        # retrun host formatted entry
+        if { [string match $ipv4mask "32"] } {
+            return $ipv4
+        } else {
+            return "$ipv4/$ipv4mask"
+        }
+
+    } elseif { [info exists ipv6] && [info exists ipv6prefix] } {
+        # retrun host formatted entry
+        if { [string match $ipv6prefix "128"] } {
+            return $ipv6
+        } else {
+            return "$ipv6/$ipv6prefix"
+        }
     } else {
         # this will trigger the caller skip this entry if we got bad info
         return -code continue
     }
+
 }

@@ -52,7 +52,6 @@ set date [clock format [clock seconds] -format "%Y-%m-%d.%H:%M"]
 
 ###########
 # read from stdio the new address list
-# I wrote it this way becase we already have scripts fetching upstream lists outputing to stdio
 foreach n [split [read stdin] "\n"] {
     if { [string index $n 0] == "#" || [string length $n] == 0 } {
         continue
