@@ -15,8 +15,8 @@ set trace 0
 
 proc help {} {
     puts "PAN: refresh Panorama static group"
-    puts "Usage:   $::argv0 <panorama hostname> <object-address-prefix> <object-address-group-name> <tag> < <stdio new>"
-    puts "example: $::argv0 panorama WebEx WebEx-Networks CiscoWebex Webex < foo.txt"
+    puts "Usage:   $::argv0 <object-address-prefix> <object-address-group-name> <tag> < <stdio new>"
+    puts "example: $::argv0 WebEx WebEx-Networks CiscoWebex Webex < foo.txt"
     exit 64
 } 
 
@@ -34,7 +34,8 @@ if { [llength $argv] != 4 } {
     [help]
 }
 
-set hostname [string tolower [lindex $argv 0]]
+## set hostname [string tolower [lindex $argv 0]]
+set hostname $config(panorama)
 set prefix [lindex $argv 1]
 set group [lindex $argv 2]
 set tag [lindex $argv 3]

@@ -16,17 +16,17 @@ Send change outputs to system logger and catch list fetch errors before piping i
 Microsoft M365 Optimized for split-tunnel vpn
 
 ```shell
-(~/dynamic-allow-lists/microsoft-office365.tcl "Optimize" || (logger -t "dynamic-allow-lists" "failed to fetch cisco webex network lists" && exit ) 2>&1 ) | ( ~/pan-dynamic-static-group/refresh-static-group.exp panorama Dyn-M365-Optimized Dyn-M365-Optimized-Networks Office365 | logger -t "dynamic-allow-lists" 2>&1 )
+(~/dynamic-allow-lists/microsoft-office365.tcl "Optimize" || (logger -t "dynamic-allow-lists" "failed to fetch cisco webex network lists" && exit ) 2>&1 ) | ( ~/pan-dynamic-static-group/refresh-static-group.exp Dyn-M365-Optimized Dyn-M365-Optimized-Networks Office365 | logger -t "dynamic-allow-lists" 2>&1 )
 ```
 
 Cisco WebEx
 
 ```shell
-(~/dynamic-allow-lists/cisco-webex.tcl || (logger -t "dynamic-allow-lists" "failed to fetch cisco webex network lists" && exit ) 2>&1 ) | ( ~/pan-dynamic-static-group/refresh-static-group.exp panorama Dyn-WebEx Dyn-CiscoWebEx-Networks WebEx | logger -t "dynamic-allow-lists" 2>&1 )
+(~/dynamic-allow-lists/cisco-webex.tcl || (logger -t "dynamic-allow-lists" "failed to fetch cisco webex network lists" && exit ) 2>&1 ) | ( ~/pan-dynamic-static-group/refresh-static-group.exp Dyn-WebEx Dyn-CiscoWebEx-Networks WebEx | logger -t "dynamic-allow-lists" 2>&1 )
 ```
 
 Zoom
 
 ```shell
-(~/dynamic-allow-lists/zoom.tcl || (logger -t "dynamic-allow-lists" "failed to fetch zoom network lists" && exit ) 2>&1 ) | ( ~/pan-dynamic-static-group/refresh-static-group.exp panorama Dyn-Zoom Dyn-Zoom-Networks Zoom | logger -t "dynamic-allow-lists" 2>&1 )
+(~/dynamic-allow-lists/zoom.tcl || (logger -t "dynamic-allow-lists" "failed to fetch zoom network lists" && exit ) 2>&1 ) | ( ~/pan-dynamic-static-group/refresh-static-group.exp Dyn-Zoom Dyn-Zoom-Networks Zoom | logger -t "dynamic-allow-lists" 2>&1 )
 ```
