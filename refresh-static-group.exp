@@ -145,7 +145,7 @@ if { ([llength $o_add] < 1 && [llength $o_rem] < 1) } {
     exit 2
 }
 
-# process the ADD
+# process the ADDITTIONS
 foreach a $o_add {
     # strip host entires and replace slash with dash
     if { [string match "*/32" $a] } {
@@ -153,6 +153,9 @@ foreach a $o_add {
     } else {
         set object "$prefix-[string map {/ -} $a]"
     }
+
+    # remove ipv6 colons from object name
+    set object [string map {: -} $object]
 
     log "info" "$tag: add $object for $group"
 
@@ -173,7 +176,7 @@ if { ! $dryrun } {
     myexpect "$prompt#"
 }
 
-# process the REM
+# process the REMOVALS
 foreach r $o_rem {
     log "info" "$tag: rem $r from $group"
     if { ! $dryrun } {
