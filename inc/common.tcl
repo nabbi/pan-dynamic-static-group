@@ -1,3 +1,5 @@
+# common procedures
+
 # shothand our logger
 proc log {level msg} {
     puts "#log: $level $msg"
@@ -29,6 +31,7 @@ proc myexec {args} {
     }
     return $results
 }
+
 # use an ip calculator to normalize the input
 proc netmask {cidr} {
 

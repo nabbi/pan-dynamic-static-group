@@ -145,7 +145,7 @@ if { ([llength $o_add] < 1 && [llength $o_rem] < 1) } {
     exit 2
 }
 
-# process the ADDITTIONS
+# process the ADDITIONS
 foreach a $o_add {
     # strip host entires and replace slash with dash
     if { [string match "*/32" $a] } {
@@ -160,7 +160,7 @@ foreach a $o_add {
     log "info" "$tag: add $object for $group"
 
     if { ! $dryrun } {
-        send "set shared address $object description \"Dynamiclly Updated $date No Touchy\" tag $tag ip-netmask $a\r"
+        send "set shared address $object description \"Dynamically Updated $date No Touchy\" tag $tag ip-netmask $a\r"
         myexpect "$prompt#"
     }
 
@@ -199,7 +199,7 @@ set timeout 120
 send "commit description $config(commit_description) partial admin $config(username)\n"
 myexpect "$prompt#"
 
-#exit config mode
+# exit config mode
 send "exit\r"
 myexpect "$prompt>"
 
