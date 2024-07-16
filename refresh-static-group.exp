@@ -172,7 +172,7 @@ foreach a $o_add {
 # this could be wrapped into the add loop and just add individual members
 if {$debug} { puts "# group: $group_members" }
 if { ! $dryrun } {
-    send "set shared address-group $group description \"Dynamiclily Updated $date No Touchy\" static \[ $group_members \]\r"
+    send "set shared address-group $group description \"Dynamically Updated $date No Touchy\" static \[ $group_members \]\r"
     myexpect "$prompt#"
 }
 
