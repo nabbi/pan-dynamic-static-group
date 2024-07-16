@@ -36,9 +36,9 @@ if { [llength $argv] != 3 } {
 
 ## set hostname [string tolower [lindex $argv 0]]
 set hostname $config(panorama)
-set prefix [lindex $argv 1]
-set group [lindex $argv 2]
-set tag [lindex $argv 3]
+set prefix [lindex $argv 0]
+set group [lindex $argv 1]
+set tag [lindex $argv 2]
 
 # dry-run mode if passed in the "tag"
 if { [string match "dry-run" $tag] } {
