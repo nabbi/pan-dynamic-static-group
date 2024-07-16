@@ -4,7 +4,7 @@ Not to be confused with EDL (External Dynamic Lists), this routine dynamically u
 
 This was created becase GlobalProtect could not reference EDL for split-tunnel.
 
-See (dynamic-allow-lists)[https://github.com/nabbi/dynamic-allow-lists] for the source ip lists.
+See [dynamic-allow-lists](https://github.com/nabbi/dynamic-allow-lists) for the source ip lists.
 
 ## Dry-Run
 
