@@ -4,14 +4,15 @@ Not to be confused with EDL (External Dynamic Lists), this routine dynamically u
 
 This was created becase GlobalProtect could not reference EDL for split-tunnel.
 
+See (dynamic-allow-lists)[https://github.com/nabbi/dynamic-allow-lists] for the source ip lists.
 
 ## Dry-Run
 
 If you pass "dry-run" as the tag value, changes will be logged but not made.
 
-## Example
+## Examples
 
-Send change outputs to system logger and catch list fetch errors before piping into PAN-OS
+Pipe changes to system logger and catch list fetch errors before piping into PAN-OS
 
 Microsoft M365 Optimized for split-tunnel vpn
 
