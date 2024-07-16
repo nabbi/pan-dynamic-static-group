@@ -1,0 +1,215 @@
+#!/usr/bin/expect
+# nic@boet.cc
+
+# read existing address objects
+# delta results from new list
+# create new objects
+# redefine group object
+# delete old objects
+
+log_user 0
+set timeout 45
+
+set debug 0
+set trace 0
+
+proc help {} {
+    puts "PAN: refresh Panorama static group"
+    puts "Usage:   $::argv0 <panorama hostname> <object-address-prefix> <object-address-group-name> <tag> < <stdio new>"
+    puts "example: $::argv0 panorama WebEx WebEx-Networks CiscoWebex Webex < foo.txt"
+    exit 64
+} 
+
+set path [file dirname [file normalize [info script]]]
+source $path/inc/myexpect.exp
+source $path/inc/common.tcl
+
+if { [catch { source $path/config.tcl }] } {
+    puts "config.tcl does not exist, please create it from config.tcl.example"
+    exit 1
+}
+
+if { [llength $argv] != 4 } {
+    puts "Incorrect number of arguments"
+    [help]
+}
+
+set hostname [string tolower [lindex $argv 0]]
+set prefix [lindex $argv 1]
+set group [lindex $argv 2]
+set tag [lindex $argv 3]
+
+# dry-run mode if passed in the "tag"
+if { [string match "dry-run" $tag] } {
+    set dryrun 1
+} else {
+    set dryrun 0
+}
+
+# used within object descriptions
+set date [clock format [clock seconds] -format "%Y-%m-%d.%H:%M"]
+
+###########
+# read from stdio the new address list
+# I wrote it this way becase we already have scripts fetching upstream lists outputing to stdio
+foreach n [split [read stdin] "\n"] {
+    if { [string index $n 0] == "#" || [string length $n] == 0 } {
+        continue
+    }
+    lappend o_new [netmask $n]
+}
+
+# sanity check
+if { ! [info exists o_new] } {
+    puts "exiting. unable to read new values from stdio"
+    exit 1
+}
+if {$trace} { foreach x $o_new { puts "# new input: $x" } }
+
+###########
+# spawn ssh connection
+source $path/inc/ssh-init.exp
+
+###########
+# output config with set commands
+send "set cli config-output-format set\r"
+myexpect "$prompt>"
+
+send "set cli pager off\r"
+myexpect "$prompt>"
+
+# enter config mode
+send "configure\r"
+myexpect "$prompt#"
+
+###########
+unset expect_out(buffer)
+match_max 60000
+
+# set shared address WebEx-170.72.0.0-16 ip-netmask 170.72.0.0/16
+# set shared address WebEx-170.72.0.0-16 description CiscoWebExNetwork
+# set shared address WebEx-170.72.0.0-16 tag WebEx
+send "show shared address | match $prefix-\r"
+expect -nocase "$prompt#"
+
+set buffer [split $expect_out(buffer) "\n"]
+
+# read currently configured address objects as old
+set o_old {}
+foreach l $buffer {
+    # reduce arbritrary whitespace
+    set l [list {*}[string map {\{ \\\{} $l]]
+    
+    switch -glob -- $l {
+        "*ip-netmask*" {
+            # 170.72.0.0/16 WebEx-170.72.0.0-16
+            dict set o_old [lindex [split $l " "] 5] [lindex [split $l " "] 3]
+        }
+    }
+}
+
+# check if we have existing old entires to be removed
+set o_rem {}
+set o_existing {}
+dict for {key value} $o_old {
+    if {$trace} { puts "# found old: $key\t$value" }
+
+    set x [lsearch $o_new $key]
+    if { $x == -1 } {
+        lappend o_rem $value
+    } else {
+        lappend o_existing $key
+        lappend group_members $value
+    }
+}
+if {$trace} { foreach x $o_existing { puts "# old: $x" } }
+if {$debug} { foreach x $o_rem { puts "# rem: $x" } }
+
+# check if we have new objects to add
+set o_add {}
+foreach n $o_new {
+    if { [llength o_existing] < 1 } {
+        continue
+    }
+    set x [lsearch $o_existing $n]
+    if { $x == -1 } {
+        lappend o_add $n
+    }
+}
+if {$debug} { foreach x $o_add { puts "# add: $x" } }
+
+###########
+# at this point lists o_add and o_rem should be ready for further processing
+if { ([llength $o_add] < 1 && [llength $o_rem] < 1) } {
+    puts "$tag: no changes needed for $group"
+    exit 2
+}
+
+# process the ADD
+foreach a $o_add {
+    # strip host entires and replace slash with dash
+    if { [string match "*/32" $a] } {
+        set object "$prefix-[lindex [split $a /] 0]"
+    } else {
+        set object "$prefix-[string map {/ -} $a]"
+    }
+
+    log "info" "$tag: add $object for $group"
+
+    if { ! $dryrun } {
+        send "set shared address $object description \"Dynamiclly Updated $date No Touchy\" tag $tag ip-netmask $a\r"
+        myexpect "$prompt#"
+    }
+
+    lappend group_members $object
+}
+
+
+# redefine the GROUP
+# this could be wrapped into the add loop and just add individual members
+if {$debug} { puts "# group: $group_members" }
+if { ! $dryrun } {
+    send "set shared address-group $group description \"Dynamiclily Updated $date No Touchy\" static \[ $group_members \]\r"
+    myexpect "$prompt#"
+}
+
+# process the REM
+foreach r $o_rem {
+    log "info" "$tag: rem $r from $group"
+    if { ! $dryrun } {
+        send "delete shared address-group $group static $r\r"
+        myexpect "$prompt#"
+        send "delete shared address $r\r"
+        myexpect "$prompt#"
+    }
+}
+
+if { $dryrun } {
+    puts "dry-run: exiting without committing"
+    exit 2
+}
+
+###########
+
+# commit
+set timeout 120
+send "commit description $config(commit_description) partial admin $config(username)\n"
+myexpect "$prompt#"
+
+#exit config mode
+send "exit\r"
+myexpect "$prompt>"
+
+# commit-all to each template-stacks
+foreach stack $config(templatestacks) {
+    send "commit-all template-stack description $config(commit_description) name $stack\r"
+    myexpect "$prompt>"
+}
+
+###########
+# close goodbye
+send "exit\r"
+expect eof
+
+puts "Success"
+exit 0

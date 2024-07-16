@@ -1,0 +1,16 @@
+# Device hostnames must resolve to the active member
+# Hint: deploy GTM/GSLB with health checks to respond with the active address. Or manually maintain a CNAME to the active member.
+set config(strict) {1}
+
+# Hostname of active Panorama instance
+set config(panorama) {panorama-hostname}
+
+# PAN-OS Admin credentials
+set config(username) {admin}
+set config(password) {pass}
+
+# template-stacks for performing commit-all
+set config(templatestacks) {stack_foo}
+
+#commit comment - escaping spaces was not running clean, do not use them here.
+set config(commit_description) "Automation-Refresh-StaticAddressGroup"

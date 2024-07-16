@@ -1,0 +1,32 @@
+# PAN Dynamic Static Group
+
+Not to be confused with EDL (External Dynamic Lists), this routine dynamically updates Palo Alto Networks NGFW static address-groups and objects within PAN-OS configurations.
+
+This was created becase GlobalProtect could not reference EDL for split-tunnel.
+
+
+## Dry-Run
+
+If you pass "dry-run" as the tag value, changes will be logged but not made.
+
+## Example
+
+Send change outputs to system logger and catch list fetch errors before piping into PAN-OS
+
+Microsoft M365 Optimized for split-tunnel vpn
+
+```shell
+(~/dynamic-lists/microsoft-office365.tcl "Optimize" || (logger -t "dynamic-lists" "failed to fetch cisco webex network lists" && exit ) 2>&1 ) | ( ~/pan-dynamic-static-group/refresh-static-group.exp panorama Dyn-M365-Optimized Dyn-M365-Optimized-Networks Office365 | logger -t "dynamic-lists" 2>&1 )
+```
+
+Cisco WebEx
+
+```shell
+(~/dynamic-lists/cisco-webex.tcl || (logger -t "dynamic-lists" "failed to fetch cisco webex network lists" && exit ) 2>&1 ) | ( ~/pan-dynamic-static-group/refresh-static-group.exp panorama Dyn-WebEx Dyn-CiscoWebEx-Networks WebEx | logger -t "dynamic-lists" 2>&1 )
+```
+
+Zoom
+
+```shell
+(~/dynamic-lists/zoom.tcl || (logger -t "dynamic-lists" "failed to fetch zoom network lists" && exit ) 2>&1 ) | ( ~/pan-dynamic-static-group/refresh-static-group.exp panorama Dyn-Zoom Dyn-Zoom-Networks Zoom | logger -t "dynamic-lists" 2>&1 )
+```
