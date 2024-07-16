@@ -29,7 +29,7 @@ if { [catch { source $path/config.tcl }] } {
     exit 1
 }
 
-if { [llength $argv] != 4 } {
+if { [llength $argv] != 3 } {
     puts "Incorrect number of arguments"
     [help]
 }
