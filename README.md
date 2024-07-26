@@ -6,6 +6,8 @@ This was created becase GlobalProtect could not reference EDL for split-tunnel.
 
 See [dynamic-allow-lists](https://github.com/nabbi/dynamic-allow-lists) for the source ip lists.
 
+![config flow](https://raw.githubusercontent.com/nabbi/pan-ts-agent-discovery/master/flow.png)
+
 ## Dry-Run
 
 If you pass "dry-run" as the tag value, changes will be logged but not made.
